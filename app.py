@@ -27,14 +27,14 @@ TEMPLATE = """
 <html lang="pt-br">
   <head>
     <meta charset="utf-8"/>
-    <title>PW · Mesa de Refino</title>
+    <title>PW · Simulador de Refino The Classic PW 1.2.6</title>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <style>
       :root { --b:#e5e7eb; --muted:#6b7280; --ok:#065f46; --bad:#b91c1c; --sel:#1d4ed8; }
       *{box-sizing:border-box}
       body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:1.2rem;background:#f8fafc}
       h1{margin:.2rem 0 .4rem}
-      .grid{display:grid;gap:1rem;grid-template-columns:320px 1fr}
+      .grid{display:grid;gap:1rem;grid-template-columns:340px 1fr}
       .card{background:#fff;border:1px solid var(--b);border-radius:.8rem;padding:1rem}
       .muted{color:var(--muted)}
       .row{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
@@ -67,44 +67,57 @@ TEMPLATE = """
       .actions{display:flex; gap:.5rem; flex-wrap:wrap}
       button{cursor:pointer}
       code{background:#f1f5f9;border:1px solid #e5e7eb;border-radius:.25rem;padding:.1rem .25rem}
+      .section-title{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
     </style>
   </head>
   <body>
-    <h1>Mesa de Refino</h1>
+    <h1>Simulador de Refino The Classic PW 1.2.6</h1>
     <p class="muted">Arraste um item do inventário para a mesa, escolha a pedra clicando numa <b>bolinha</b> e clique <b>Refinar</b>. O nível fica salvo no <u>item</u>.</p>
 
     <div class="grid">
       <!-- Lado esquerdo: preços, totais, probabilidades -->
       <div class="card">
-        <h3>Preços das pedras</h3>
-        <div class="row">
-          <div><label for="p_imortal">Imortal</label><input id="p_imortal" type="number" step="0.0001" value="0.30"></div>
-          <div><label for="p_ceu">Céu</label><input id="p_ceu" type="number" step="0.0001" value="0.45"></div>
-        </div>
-        <div class="row" style="margin-top:.4rem">
-          <div><label for="p_maligna">Maligna</label><input id="p_maligna" type="number" step="0.0001" value="0.33"></div>
-          <div><label for="p_terra">Terra</label><input id="p_terra" type="number" step="0.0001" value="1.00"></div>
-        </div>
-        <div class="toolbar" style="margin-top:.6rem">
-          <button id="save-prices">Salvar preços</button>
-          <button id="reset-costs">Zerar custos</button>
+        <div class="section-title">
+          <h3>Preços das pedras</h3>
+          <div class="toolbar">
+            <button id="save-prices">Salvar preços</button>
+            <button id="reset-all" title="Zera níveis, custos, quantidades e limpa a mesa/log">Resetar tudo</button>
+          </div>
         </div>
 
-        <h3 style="margin-top:1rem">Totais</h3>
+        <div class="row">
+          <div><label for="p_imortal">Pedra Imortal</label><input id="p_imortal" type="number" step="0.0001" value="0.30"></div>
+          <div><label for="p_ceu">Pedra Céu</label><input id="p_ceu" type="number" step="0.0001" value="0.45"></div>
+        </div>
+        <div class="row" style="margin-top:.4rem">
+          <div><label for="p_maligna">Pedra Maligna</label><input id="p_maligna" type="number" step="0.0001" value="0.33"></div>
+          <div><label for="p_terra">Pedra Céu & Terra</label><input id="p_terra" type="number" step="0.0001" value="1.00"></div>
+        </div>
+
+        <h3 style="margin-top:1rem">Totais (custos)</h3>
         <table>
-          <tr><th>Imortal</th><td id="c_imortal">0</td></tr>
-          <tr><th>Céu</th><td id="c_ceu">0</td></tr>
-          <tr><th>Maligna</th><td id="c_maligna">0</td></tr>
-          <tr><th>Terra</th><td id="c_terra">0</td></tr>
+          <tr><th>Pedra Imortal</th><td id="c_imortal">0</td></tr>
+          <tr><th>Pedra Céu</th><td id="c_ceu">0</td></tr>
+          <tr><th>Pedra Maligna</th><td id="c_maligna">0</td></tr>
+          <tr><th>Pedra Céu & Terra</th><td id="c_terra">0</td></tr>
           <tr><th class="total">TOTAL</th><td class="total" id="c_total">0</td></tr>
+        </table>
+
+        <h3 style="margin-top:1rem">Quantidade de pedras utilizadas</h3>
+        <table>
+          <tr><th>Pedra Imortal</th><td id="u_imortal">0</td></tr>
+          <tr><th>Pedra Céu</th><td id="u_ceu">0</td></tr>
+          <tr><th>Pedra Maligna</th><td id="u_maligna">0</td></tr>
+          <tr><th>Pedra Céu & Terra</th><td id="u_terra">0</td></tr>
+          <tr><th class="total">TOTAL</th><td class="total" id="u_total">0</td></tr>
         </table>
 
         <h3 style="margin-top:1rem">Probabilidades</h3>
         <p class="muted small">Sucesso para subir do nível atual para o próximo (+1..+8). Regras de falha:
-          <span class="chip">Imortal: zera</span>
-          <span class="chip">Céu: zera</span>
-          <span class="chip">Maligna: -1</span>
-          <span class="chip">Terra: mantém</span>
+          <span class="chip">Pedra Imortal: zera</span>
+          <span class="chip">Pedra Céu: zera</span>
+          <span class="chip">Pedra Maligna: -1</span>
+          <span class="chip">Pedra Céu & Terra: mantém</span>
         </p>
         <div id="probs"></div>
       </div>
@@ -117,23 +130,23 @@ TEMPLATE = """
         </div>
 
         <div class="card">
-          <h3>Mesa de Refino</h3>
+          <h3>Simulador de Refino The Classic PW 1.2.6</h3>
           <div id="table-slot" class="slot" data-slot>Arraste um item aqui</div>
 
           <div style="margin-top:.8rem">
             <label>Escolha a pedra</label>
             <div id="stones" class="stones">
               <div class="stone selected" data-stone="imortal" tabindex="0">
-                <div class="dot">IM</div><div class="label">Imortal</div>
+                <div class="dot">IM</div><div class="label">Pedra Imortal</div>
               </div>
               <div class="stone" data-stone="ceu" tabindex="0">
-                <div class="dot">CE</div><div class="label">Céu</div>
+                <div class="dot">CE</div><div class="label">Pedra Céu</div>
               </div>
               <div class="stone" data-stone="maligna" tabindex="0">
-                <div class="dot">MA</div><div class="label">Maligna</div>
+                <div class="dot">MA</div><div class="label">Pedra Maligna</div>
               </div>
               <div class="stone" data-stone="terra" tabindex="0">
-                <div class="dot">TE</div><div class="label">Terra</div>
+                <div class="dot">TE</div><div class="label">Pedra Céu & Terra</div>
               </div>
             </div>
           </div>
@@ -167,6 +180,7 @@ TEMPLATE = """
         ],
         onTable: null, // id do item na mesa
         spent: {imortal:0, ceu:0, maligna:0, terra:0},
+        used:  {imortal:0, ceu:0, maligna:0, terra:0},
         selectedStone: 'imortal',
       };
 
@@ -178,6 +192,7 @@ TEMPLATE = """
 
       function fmt(n){ return String(Number(n).toFixed(4)).replace(/\\.0+$/, ""); }
       function priceOf(stone){ return Number(pricesInputs[stone].value || 0); }
+
       function updateCostsUI(){
         const t = state.spent.imortal + state.spent.ceu + state.spent.maligna + state.spent.terra;
         document.getElementById('c_imortal').textContent = fmt(state.spent.imortal);
@@ -187,18 +202,40 @@ TEMPLATE = """
         document.getElementById('c_total').textContent   = fmt(t);
       }
 
+      function updateUsageUI(){
+        const totalUsed = state.used.imortal + state.used.ceu + state.used.maligna + state.used.terra;
+        document.getElementById('u_imortal').textContent = state.used.imortal;
+        document.getElementById('u_ceu').textContent     = state.used.ceu;
+        document.getElementById('u_maligna').textContent = state.used.maligna;
+        document.getElementById('u_terra').textContent   = state.used.terra;
+        document.getElementById('u_total').textContent   = totalUsed;
+      }
+
       // Persistência de preços
       (function loadPrices(){
         const saved = JSON.parse(localStorage.getItem('pw_refino_prices') || '{}');
         for (const k of Object.keys(pricesInputs)) if (saved[k]!=null) pricesInputs[k].value = saved[k];
         updateCostsUI();
+        updateUsageUI();
       })();
       document.getElementById('save-prices').onclick = () => {
         const toSave = {}; for (const k of Object.keys(pricesInputs)) toSave[k] = Number(pricesInputs[k].value||0);
         localStorage.setItem('pw_refino_prices', JSON.stringify(toSave));
       };
-      document.getElementById('reset-costs').onclick = () => {
-        state.spent = {imortal:0,ceu:0,maligna:0,terra:0}; updateCostsUI();
+
+      // Resetar tudo: níveis, custos, quantidades, mesa e log
+      document.getElementById('reset-all').onclick = () => {
+        state.items = state.items.map(it => ({...it, lvl:0}));
+        state.spent = {imortal:0, ceu:0, maligna:0, terra:0};
+        state.used  = {imortal:0, ceu:0, maligna:0, terra:0};
+        state.onTable = null;
+        renderInventory();
+        updateCostsUI();
+        updateUsageUI();
+        $slot.textContent = 'Arraste um item aqui';
+        $log.textContent = '';
+        // Mantém preços configurados; se quiser zerar os campos também, basta descomentar:
+        // for (const k of Object.keys(pricesInputs)) pricesInputs[k].value = 0;
       };
 
       // INVENTÁRIO (draggable)
@@ -257,7 +294,10 @@ TEMPLATE = """
         if (it.lvl >= MAX_LEVEL){ log(`Item já está no nível máximo (+${MAX_LEVEL}).`, 'ok'); return; }
 
         const stone = state.selectedStone;
-        state.spent[stone] += priceOf(stone); updateCostsUI();
+        state.spent[stone] += priceOf(stone);
+        state.used[stone] += 1;
+        updateCostsUI();
+        updateUsageUI();
 
         const res = await fetch('/api/attempt', {
           method:'POST', headers:{'Content-Type':'application/json'},
@@ -270,7 +310,7 @@ TEMPLATE = """
 
         // Mensagens padronizadas (EN)
         if (res.success) {
-          log('Refined successfully!', 'ok');
+          log('Refinado com sucesso!', 'ok');
         } else {
           let msg = 'Refining failed.';
           if (res.applied_rule === 'reset')      msg += ' Item level reset.';
@@ -295,7 +335,9 @@ TEMPLATE = """
         const host = document.getElementById('probs');
         const tbl = document.createElement('table');
         const head = document.createElement('tr');
-        head.innerHTML = '<th>+Nível</th>' + Object.keys(data).map(k=>`<th>${k}</th>`).join('');
+        head.innerHTML = '<th>+Nível</th>' + Object.keys(data).map(k=>`<th>${({
+          imortal:"Pedra Imortal", ceu:"Pedra Céu", maligna:"Pedra Maligna", terra:"Pedra Céu & Terra"
+        })[k]}</th>`).join('');
         tbl.appendChild(head);
         for (let lvl=1; lvl<= {{max_level}}; lvl++){
           const tr = document.createElement('tr');
